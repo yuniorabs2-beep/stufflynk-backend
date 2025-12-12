@@ -14,13 +14,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Ruta de prueba
-app.get('/', (req, res) => {
-  res.send('API de UniTrade funcionando...');
-});
-
-// Rutas de usuarios
-app.use('/api/users', require('./routes/userRoutes'));
+// Rutas principales
+app.use('/', require('./routes/mainRoutes'));
 
 // Middleware de errores (siempre al final)
 app.use(errorHandler);
