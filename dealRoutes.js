@@ -2,22 +2,22 @@ const express = require('express');
 const router = express.Router();
 const { protect } = require('../auth/authMiddleware');
 const {
-  createTrade,
-  getTrades,
-  updateTradeStatus,
-  deleteTrade,
-} = require('../controllers/tradeController');
+  createDeal,
+  getDeals,
+  updateDealStatus,
+  deleteDeal,
+} = require('../controllers/dealController');
 
 // Crear un nuevo convenio
-router.post('/', protect, createTrade);
+router.post('/', protect, createDeal);
 
 // Obtener todos los convenios
-router.get('/', protect, getTrades);
+router.get('/', protect, getDeals);
 
 // Actualizar estado de un convenio
-router.put('/:id', protect, updateTradeStatus);
+router.put('/:id', protect, updateDealStatus);
 
 // Eliminar un convenio
-router.delete('/:id', protect, deleteTrade);
+router.delete('/:id', protect, deleteDeal);
 
 module.exports = router;

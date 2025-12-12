@@ -1,27 +1,36 @@
-// auth/authMiddleware.js
+// middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-function authMiddleware(req, res, next) {
-  // Obtener el token del encabezado Authorization
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Formato: Bearer <token>
+const authMiddleware = async (req, res, next) => {
+  let token;
+
+  // Verificamos si el header Authorization existe y empieza con "Bearer"
+  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+    try {
+      // Extraer el token
+      token = req.headers.authorization.split(' ')[1];
+
+      // Verificar el token con la clave secreta
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Buscar el usuario en la base de datos y excluir el campo password
+      req.user = await User.findById(decoded.id).select('-password');
+
+      if (!req.user) {
+        return res.status(401).json({ message: 'Usuario no encontrado' });
+      }
+
+      next(); // continuar al siguiente middleware o ruta
+    } catch (error) {
+      console.error('❌ Error en authMiddleware:', error.message);
+      return res.status(401).json({ message: 'Token inválido o expirado' });
+    }
+  }
 
   if (!token) {
-    return res.status(401).json({ message: 'Token no proporcionado' });
+    return res.status(401).json({ message: 'No se proporcionó token' });
   }
-
-  try {
-    // Verificar el token con la clave secreta
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Guardar el usuario decodificado en la request
-    req.user = decoded;
-
-    // Continuar con la siguiente función/middleware
-    next();
-  } catch (error) {
-    return res.status(403).json({ message: 'Token inválido o expirado' });
-  }
-}
+};
 
 module.exports = authMiddleware;

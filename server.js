@@ -1,29 +1,33 @@
+// server.js
 const express = require('express');
-const mongoose = require('mongoose');
-require('dotenv').config();
+const dotenv = require('dotenv').config();
+const connectDB = require('./config/db');
+const { errorHandler } = require('./middleware/errorMiddleware');
 
-const mainRoutes = require('./routes/mainRoutes.js');
+// Conectar a la base de datos ANTES de levantar el servidor
+connectDB();
 
+// Inicializar la app
 const app = express();
+
+// Middleware para parsear JSON y formularios
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-// Conexión a MongoDB Atlas
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ Conectado a MongoDB Atlas'))
-.catch(err => console.error('❌ Error de conexión:', err));
-
-// Rutas principales
-app.use('/api', mainRoutes);
-
-// Ruta raíz para verificar estado
+// Ruta de prueba
 app.get('/', (req, res) => {
-  res.send('Servidor UniTrade funcionando 🚀');
+  res.send('API de UniTrade funcionando...');
 });
 
+// Rutas de usuarios
+app.use('/api/users', require('./routes/userRoutes'));
+
+// Middleware de errores (siempre al final)
+app.use(errorHandler);
+
+// Puerto desde .env o por defecto 3000
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

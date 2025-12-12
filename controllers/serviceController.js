@@ -64,7 +64,7 @@ const updateService = asyncHandler(async (req, res) => {
   const updatedService = await Service.findByIdAndUpdate(
     req.params.id,
     req.body,
-    { new: true }
+    { new: true, runValidators: true } // runValidators asegura que se respeten las reglas del modelo
   );
 
   res.json(updatedService);
@@ -86,7 +86,7 @@ const deleteService = asyncHandler(async (req, res) => {
     throw new Error('No autorizado');
   }
 
-  await service.remove();
+  await service.deleteOne(); // forma moderna, evita warnings
   res.json({ message: 'Servicio eliminado correctamente' });
 });
 

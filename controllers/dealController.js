@@ -1,6 +1,5 @@
 const asyncHandler = require('express-async-handler');
 const Trade = require('../models/Trade');
-const Service = require('../models/Service');
 
 // @desc    Crear un nuevo convenio (deal)
 // @route   POST /deals
@@ -46,7 +45,7 @@ const updateDealStatus = asyncHandler(async (req, res) => {
   }
 
   // Solo los usuarios involucrados pueden actualizar el estado
-  if (!deal.users.includes(req.user.id)) {
+  if (!deal.users.some(userId => userId.toString() === req.user.id)) {
     res.status(401);
     throw new Error('No autorizado');
   }
@@ -69,12 +68,12 @@ const deleteDeal = asyncHandler(async (req, res) => {
   }
 
   // Solo los usuarios involucrados pueden eliminar
-  if (!deal.users.includes(req.user.id)) {
+  if (!deal.users.some(userId => userId.toString() === req.user.id)) {
     res.status(401);
     throw new Error('No autorizado');
   }
 
-  await deal.remove();
+  await deal.deleteOne(); // forma moderna, evita warnings
   res.json({ message: 'Convenio eliminado correctamente' });
 });
 
