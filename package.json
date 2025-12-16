@@ -1,7 +1,7 @@
 {
-  "name": "unitrade",
+  "name": "stufflynk",
   "version": "1.0.0",
-  "description": "Plataforma de trueque digital UniTrade",
+  "description": "Plataforma de trueque digital StuffLynk",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

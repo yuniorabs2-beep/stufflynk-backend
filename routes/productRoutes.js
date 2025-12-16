@@ -1,6 +1,7 @@
+con// routes/productRoutes.js
 const express = require('express');
-const Product = require('../models/Product');
-const authMiddleware = require('../auth/authMiddleware'); // ✅ corregido
+const Product = require('../models/product');   // ✅ corregido: archivo product.js
+const authMiddleware = require('../auth/authMiddleware');
 
 const router = express.Router();
 

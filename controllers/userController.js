@@ -1,57 +1,133 @@
-// models/User.js
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+// controllers/userController.js
+const User = require('../models/user'); // asegúrate que el archivo sea user.js en /models
+const jwt = require('jsonwebtoken');
 
-const userSchema = new mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, 'El nombre es obligatorio'],
-      trim: true,
-      minlength: [3, 'El nombre debe tener al menos 3 caracteres'],
-    },
-    email: {
-      type: String,
-      required: [true, 'El correo es obligatorio'],
-      unique: true,
-      match: [
-        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-        'Por favor ingresa un correo válido',
-      ],
-    },
-    password: {
-      type: String,
-      required: [true, 'La contraseña es obligatoria'],
-      minlength: [6, 'La contraseña debe tener al menos 6 caracteres'],
-    },
-    role: {
-      type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
-    },
-  },
-  {
-    timestamps: true,
-  }
-);
-
-// 🔒 Hook para encriptar la contraseña antes de guardar
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next(); // si no cambió, no re-encriptar
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Método opcional para comparar contraseñas
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+// Generar token JWT
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '30d',
+  });
 };
 
-const User = mongoose.model('User', userSchema);
+// Registro de usuario
+const registerUser = async (req, res) => {
+  const { name, email, password } = req.body;
 
-module.exports = User;
+  try {
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: 'El usuario ya existe' });
+    }
+
+    const user = await User.create({ name, email, password });
+
+    if (user) {
+      res.status(201).json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user.id),
+      });
+    } else {
+      res.status(400).json({ message: 'Datos de usuario inválidos' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error en el servidor', error: error.message });
+  }
+};
+
+// Login de usuario
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (user && (await user.matchPassword(password))) {
+      res.json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user.id),
+      });
+    } else {
+      res.status(401).json({ message: 'Credenciales inválidas' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error en el servidor', error: error.message });
+  }
+};
+
+// Perfil de usuario
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (user) {
+      res.json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      });
+    } else {
+      res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error en el servidor', error: error.message });
+  }
+};
+
+// Actualizar perfil
+const updateUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (user) {
+      user.name = req.body.name || user.name;
+      user.email = req.body.email || user.email;
+      if (req.body.password) {
+        user.password = req.body.password;
+      }
+
+      const updatedUser = await user.save();
+
+      res.json({
+        _id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        role: updatedUser.role,
+        token: generateToken(updatedUser.id),
+      });
+    } else {
+      res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error en el servidor', error: error.message });
+  }
+};
+
+// Eliminar usuario
+const deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (user) {
+      await user.remove();
+      res.json({ message: 'Usuario eliminado' });
+    } else {
+      res.status(404).json({ message: 'Usuario no encontrado' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Error en el servidor', error: error.message });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  getUserProfile,
+  updateUserProfile,
+  deleteUser,
+};
