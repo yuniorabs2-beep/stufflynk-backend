@@ -1,85 +1,58 @@
-const asyncHandler = require('express-async-handler');
-const Trade = require('../models/Trade');
+// controllers/dealController.js
+const Trade = require('../models/trade');
 
-// @desc    Crear un nuevo convenio (deal)
-// @route   POST /deals
-// @access  Privado
-const createDeal = asyncHandler(async (req, res) => {
-  const { serviceOffered, serviceRequested, notes } = req.body;
-
-  if (!serviceOffered || !serviceRequested) {
-    res.status(400);
-    throw new Error('Debes especificar los servicios ofrecido y solicitado');
+// Obtener todos los trades
+const getDeals = async (req, res) => {
+  try {
+    const trades = await Trade.find()
+      .populate('serviceOffered')
+      .populate('serviceRequested')
+      .populate('users');
+    res.json(trades);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener los trades', error });
   }
+};
 
-  const deal = await Trade.create({
-    serviceOffered,
-    serviceRequested,
-    users: [req.user.id], // el usuario autenticado inicia el convenio
-    notes,
-  });
+// Crear un nuevo trade
+const createDeal = async (req, res) => {
+  try {
+    const { serviceOffered, serviceRequested, users, notes } = req.body;
 
-  res.status(201).json(deal);
-});
+    const trade = new Trade({
+      serviceOffered,
+      serviceRequested,
+      users,
+      notes,
+    });
 
-// @desc    Obtener todos los convenios
-// @route   GET /deals
-// @access  Privado
-const getDeals = asyncHandler(async (req, res) => {
-  const deals = await Trade.find()
-    .populate('serviceOffered')
-    .populate('serviceRequested')
-    .populate('users', 'name email');
-  res.json(deals);
-});
-
-// @desc    Actualizar estado de un convenio
-// @route   PUT /deals/:id
-// @access  Privado
-const updateDealStatus = asyncHandler(async (req, res) => {
-  const deal = await Trade.findById(req.params.id);
-
-  if (!deal) {
-    res.status(404);
-    throw new Error('Convenio no encontrado');
+    const savedTrade = await trade.save();
+    res.status(201).json(savedTrade);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al crear el trade', error });
   }
+};
 
-  // Solo los usuarios involucrados pueden actualizar el estado
-  if (!deal.users.some(userId => userId.toString() === req.user.id)) {
-    res.status(401);
-    throw new Error('No autorizado');
+// Obtener un trade por ID
+const getDealById = async (req, res) => {
+  try {
+    const trade = await Trade.findById(req.params.id)
+      .populate('serviceOffered')
+      .populate('serviceRequested')
+      .populate('users');
+
+    if (!trade) {
+      return res.status(404).json({ message: 'Trade no encontrado' });
+    }
+
+    res.json(trade);
+  } catch (error) {
+    res.status(500).json({ message: 'Error al obtener el trade', error });
   }
-
-  deal.status = req.body.status || deal.status;
-  await deal.save();
-
-  res.json(deal);
-});
-
-// @desc    Eliminar un convenio
-// @route   DELETE /deals/:id
-// @access  Privado
-const deleteDeal = asyncHandler(async (req, res) => {
-  const deal = await Trade.findById(req.params.id);
-
-  if (!deal) {
-    res.status(404);
-    throw new Error('Convenio no encontrado');
-  }
-
-  // Solo los usuarios involucrados pueden eliminar
-  if (!deal.users.some(userId => userId.toString() === req.user.id)) {
-    res.status(401);
-    throw new Error('No autorizado');
-  }
-
-  await deal.deleteOne(); // forma moderna, evita warnings
-  res.json({ message: 'Convenio eliminado correctamente' });
-});
+};
 
 module.exports = {
-  createDeal,
   getDeals,
-  updateDealStatus,
-  deleteDeal,
+  createDeal,
+  getDealById,
 };

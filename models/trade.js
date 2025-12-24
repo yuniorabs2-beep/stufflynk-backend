@@ -1,16 +1,16 @@
-// models/Trade.js
+// models/trade.js
 const mongoose = require('mongoose');
 
-const tradeSchema = new mongoose.Schema(
+const tradeSchema = mongoose.Schema(
   {
     serviceOffered: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Service',
+      ref: 'Offering',
       required: true,
     },
     serviceRequested: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Service',
+      ref: 'Offering',
       required: true,
     },
     users: [
@@ -22,18 +22,14 @@ const tradeSchema = new mongoose.Schema(
     ],
     status: {
       type: String,
-      enum: ['pendiente', 'aceptado', 'rechazado', 'completado'],
+      enum: ['pendiente', 'aceptado', 'rechazado'],
       default: 'pendiente',
     },
     notes: {
       type: String,
-      trim: true,
     },
   },
-  {
-    timestamps: true, // agrega createdAt y updatedAt automáticamente
-  }
+  { timestamps: true }
 );
 
-// Exportar el modelo
 module.exports = mongoose.model('Trade', tradeSchema);

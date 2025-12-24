@@ -1,36 +1,31 @@
-// middleware/authMiddleware.js
+// auth/authMiddleware.js
 const jwt = require('jsonwebtoken');
+const asyncHandler = require('express-async-handler');
 const User = require('../models/user');
 
-const authMiddleware = async (req, res, next) => {
+const protect = asyncHandler(async (req, res, next) => {
   let token;
 
-  // Verificamos si el header Authorization existe y empieza con "Bearer"
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      // Extraer el token
       token = req.headers.authorization.split(' ')[1];
-
-      // Verificar el token con la clave secreta
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Buscar el usuario en la base de datos y excluir el campo password
       req.user = await User.findById(decoded.id).select('-password');
-
       if (!req.user) {
-        return res.status(401).json({ message: 'Usuario no encontrado' });
+        res.status(401);
+        throw new Error('No autorizado, usuario no encontrado');
       }
 
-      next(); // continuar al siguiente middleware o ruta
+      return next();
     } catch (error) {
-      console.error('❌ Error en authMiddleware:', error.message);
-      return res.status(401).json({ message: 'Token inválido o expirado' });
+      res.status(401);
+      throw new Error('No autorizado, token inválido');
     }
   }
 
-  if (!token) {
-    return res.status(401).json({ message: 'No se proporcionó token' });
-  }
-};
+  res.status(401);
+  throw new Error('No autorizado, no hay token');
+});
 
-module.exports = authMiddleware;
+module.exports = { protect };

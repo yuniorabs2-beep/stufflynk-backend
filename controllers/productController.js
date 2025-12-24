@@ -1,20 +1,18 @@
-// routes/productRoutes.js
-const express = require('express');
-const router = express.Router();
+// controllers/productController.js
 const Product = require('../models/product');
 
 // Obtener todos los productos
-router.get('/', async (req, res) => {
+const getProducts = async (req, res) => {
   try {
     const products = await Product.find();
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener productos', error });
   }
-});
+};
 
 // Crear un nuevo producto
-router.post('/', async (req, res) => {
+const createProduct = async (req, res) => {
   try {
     const { name, description, price, user } = req.body;
     const product = await Product.create({ name, description, price, user });
@@ -22,10 +20,10 @@ router.post('/', async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: 'Error al crear producto', error });
   }
-});
+};
 
 // Obtener un producto por ID
-router.get('/:id', async (req, res) => {
+const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
     if (!product) {
@@ -35,10 +33,10 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error al obtener producto', error });
   }
-});
+};
 
 // Actualizar un producto por ID
-router.put('/:id', async (req, res) => {
+const updateProduct = async (req, res) => {
   try {
     const { name, description, price, user } = req.body;
     const product = await Product.findByIdAndUpdate(
@@ -53,10 +51,10 @@ router.put('/:id', async (req, res) => {
   } catch (error) {
     res.status(400).json({ message: 'Error al actualizar producto', error });
   }
-});
+};
 
 // Eliminar un producto por ID
-router.delete('/:id', async (req, res) => {
+const deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) {
@@ -66,6 +64,12 @@ router.delete('/:id', async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error al eliminar producto', error });
   }
-});
+};
 
-module.exports = router;
+module.exports = {
+  getProducts,
+  createProduct,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+};

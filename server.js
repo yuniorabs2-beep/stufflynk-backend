@@ -1,28 +1,34 @@
 // server.js
 const express = require('express');
-const dotenv = require('dotenv').config();
+const dotenv = require('dotenv');
 const connectDB = require('./config/db');
-const { errorHandler } = require('./middleware/errorMiddleware');
+const errorHandler = require('./middleware/errorMiddleware');
 
-// Conectar a la base de datos ANTES de levantar el servidor
+// Importar rutas
+const productRoutes = require('./routes/productRoutes');
+const dealRoutes = require('./routes/dealRoutes');   // Trade/Deal
+const serviceRoutes = require('./routes/serviceRoutes');
+const userRoutes = require('./routes/userRoutes');
+const mainRoutes = require('./routes/mainRoutes');
+
+dotenv.config();
 connectDB();
 
-// Inicializar la app
 const app = express();
 
-// Middleware para parsear JSON y formularios
+// Middleware para JSON
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Rutas principales
-app.use('/', require('./routes/mainRoutes'));
+// Rutas
+app.use('/api/products', productRoutes);
+app.use('/api/deals', dealRoutes);     // aquí se manejan los trades/deals
+app.use('/api/services', serviceRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/main', mainRoutes);
 
-// Middleware de errores (siempre al final)
+// Middleware de errores
 app.use(errorHandler);
 
-// Puerto desde .env o por defecto 3000
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Servidor corriendo en puerto ${PORT}`));

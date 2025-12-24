@@ -1,9 +1,11 @@
-
 require('dotenv').config(); // ← carga variables de entorno desde .env
 const express = require('express');
-const db = require('./db'); // ← activa la conexión a MongoDB Atlas desde db.js
+const connectDB = require('./config/db'); // ✅ corregido: coincide con tu carpeta config/db.js
 const mainRoutes = require('./routes/mainRoutes');
 const app = express();
+
+// Conexión a la base de datos
+connectDB();
 
 // Middleware para leer JSON en peticiones
 app.use(express.json());
