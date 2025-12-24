@@ -14,12 +14,20 @@ const getServices = async (req, res) => {
 // Crear un nuevo servicio
 const createService = async (req, res) => {
   try {
-    const { name, description, price, user } = req.body;
-    const offering = new Offering({ name, description, price, user });
+    const { title, description, category, availability, user } = req.body;
+
+    const offering = new Offering({
+      title,
+      description,
+      category,
+      availability,
+      user,
+    });
+
     const savedOffering = await offering.save();
     res.status(201).json(savedOffering);
   } catch (error) {
-    res.status(500).json({ message: 'Error al crear el servicio', error });
+    res.status(400).json({ message: 'Error al crear el servicio', error });
   }
 };
 

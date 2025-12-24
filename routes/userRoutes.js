@@ -1,29 +1,19 @@
+// routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
+const { getUsers, registerUser, loginUser } = require('../controllers/userController');
 
-const {
-  registerUser,
-  authUser,
-  getProfile,
-  updateProfile,
-  deleteUser,
-} = require('../controllers/userController');
-
-const { protect } = require('../auth/authMiddleware');
+// Obtener todos los usuarios
+router.get('/', getUsers);
 
 // Registrar usuario
-router.post('/register', registerUser);
+router.post('/', registerUser);
 
 // Login usuario
-router.post('/login', authUser);
+router.post('/login', loginUser);
 
-// Perfil del usuario autenticado
-router.get('/profile', protect, getProfile);
-
-// Actualizar perfil del usuario autenticado
-router.put('/profile', protect, updateProfile);
-
-// Eliminar usuario autenticado
-router.delete('/profile', protect, deleteUser);
+module.exports = router;
+// ✅ Ruta para login de usuario
+router.post('/login', loginUser);
 
 module.exports = router;
