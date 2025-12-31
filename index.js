@@ -1,22 +1,24 @@
-require('dotenv').config(); // ← carga variables de entorno desde .env
-const express = require('express');
-const connectDB = require('./config/db'); // ✅ coincide con tu carpeta config/db.js
-const mainRoutes = require('./routes/mainRoutes');
-const app = express();
+// index.js
+const express = require("express");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db");
+const mainRoutes = require("./routes/mainRoutes");
+const { notFound, errorHandler } = require("./middleware/errorMiddleware");
 
-// Conexión a la base de datos
+dotenv.config();
 connectDB();
 
-// Middleware para leer JSON en peticiones
+const app = express();
+
+// Middleware para parsear JSON y formularios
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Importar rutas principales con prefijo /api
-app.use('/api', mainRoutes);
+// Rutas principales bajo /api
+app.use("/api", mainRoutes);
 
-// Puerto de conexión (usa el de .env si existe, o 5000 por defecto)
-const PORT = process.env.PORT || 5000;
+// Middleware de errores
+app.use(notFound);
+app.use(errorHandler);
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-});
+module.exports = app;

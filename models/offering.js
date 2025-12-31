@@ -4,18 +4,19 @@ const offeringSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
-      trim: true,
+      required: [true, 'El título es obligatorio'],
     },
     description: {
       type: String,
-      required: true,
-      trim: true,
+      required: [true, 'La descripción es obligatoria'],
     },
     category: {
       type: String,
-      required: true,
-      trim: true,
+      required: [true, 'La categoría es obligatoria'],
+    },
+    price: {
+      type: Number,
+      required: [true, 'El precio es obligatorio'],
     },
     availability: {
       type: Boolean,
@@ -28,8 +29,10 @@ const offeringSchema = new mongoose.Schema(
     },
   },
   {
-    timestamps: true, // agrega createdAt y updatedAt automáticamente
+    timestamps: true,
   }
 );
 
-module.exports = mongoose.model('Offering', offeringSchema);
+const Offering = mongoose.model('Offering', offeringSchema);
+
+module.exports = Offering;

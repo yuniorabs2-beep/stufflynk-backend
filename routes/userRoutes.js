@@ -1,19 +1,10 @@
-// routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
-const { getUsers, registerUser, loginUser } = require('../controllers/userController');
+const { registerUser, loginUser, getUserProfile } = require('../controllers/userController');
+const { protect } = require('../auth/authMiddleware');
 
-// Obtener todos los usuarios
-router.get('/', getUsers);
-
-// Registrar usuario
-router.post('/', registerUser);
-
-// Login usuario
+router.post('/register', registerUser);
 router.post('/login', loginUser);
-
-module.exports = router;
-// ✅ Ruta para login de usuario
-router.post('/login', loginUser);
+router.get('/profile', protect, getUserProfile);
 
 module.exports = router;

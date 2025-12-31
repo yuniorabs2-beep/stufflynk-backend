@@ -1,71 +1,28 @@
 // routes/productRoutes.js
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const Product = require('../models/product');
+const { protect } = require("../auth/authMiddleware");
+const {
+  createProduct,
+  listProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+} = require("../controllers/productController");
 
-// Obtener todos los productos
-router.get('/', async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener productos', error });
-  }
-});
+// Listar todos los productos
+router.get("/", listProducts);
 
-// Crear un nuevo producto
-router.post('/', async (req, res) => {
-  try {
-    const { name, description, price, user } = req.body;
-    const product = await Product.create({ name, description, price, user });
-    res.status(201).json(product);
-  } catch (error) {
-    res.status(400).json({ message: 'Error al crear producto', error });
-  }
-});
+// Crear un nuevo producto (requiere autenticación)
+router.post("/", protect, createProduct);
 
 // Obtener un producto por ID
-router.get('/:id', async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-    res.json(product);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener producto', error });
-  }
-});
+router.get("/:id", getProductById);
 
-// Actualizar un producto por ID
-router.put('/:id', async (req, res) => {
-  try {
-    const { name, description, price, user } = req.body;
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { name, description, price, user },
-      { new: true, runValidators: true }
-    );
-    if (!product) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-    res.json(product);
-  } catch (error) {
-    res.status(400).json({ message: 'Error al actualizar producto', error });
-  }
-});
+// Actualizar un producto por ID (requiere autenticación)
+router.put("/:id", protect, updateProduct);
 
-// Eliminar un producto por ID
-router.delete('/:id', async (req, res) => {
-  try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-    res.json({ message: 'Producto eliminado correctamente' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar producto', error });
-  }
-});
+// Eliminar un producto por ID (requiere autenticación)
+router.delete("/:id", protect, deleteProduct);
 
 module.exports = router;

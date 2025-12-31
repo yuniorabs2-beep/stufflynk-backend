@@ -1,12 +1,20 @@
 // routes/serviceRoutes.js
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { getServices, createService } = require('../controllers/serviceController');
+const {
+  createService,
+  getServices,
+  getServiceById,
+} = require("../controllers/serviceController");
+const { protect } = require("../auth/authMiddleware");
 
-// Obtener todos los servicios
-router.get('/', getServices);
+// Listar todos los servicios (público)
+router.get("/", getServices);
 
-// Crear un nuevo servicio
-router.post('/', createService);
+// Obtener un servicio por ID (público)
+router.get("/:id", getServiceById);
+
+// Crear un nuevo servicio (requiere autenticación)
+router.post("/", protect, createService);
 
 module.exports = router;

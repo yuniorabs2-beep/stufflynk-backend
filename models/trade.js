@@ -1,35 +1,33 @@
-// models/trade.js
 const mongoose = require('mongoose');
 
-const tradeSchema = mongoose.Schema(
+const tradeSchema = new mongoose.Schema(
   {
-    serviceOffered: {
+    itemOffered: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Offering',
       required: true,
     },
-    serviceRequested: {
+    itemRequested: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Offering',
+      ref: 'Product',
       required: true,
     },
-    users: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true,
-      },
-    ],
     status: {
       type: String,
-      enum: ['pendiente', 'aceptado', 'rechazado'],
-      default: 'pendiente',
+      enum: ['pending', 'accepted', 'rejected'],
+      default: 'pending',
     },
-    notes: {
-      type: String,
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model('Trade', tradeSchema);
+const Trade = mongoose.model('Trade', tradeSchema);
+
+module.exports = Trade;

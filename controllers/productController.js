@@ -1,74 +1,120 @@
 // controllers/productController.js
-const Product = require('../models/product');
+const asyncHandler = require("express-async-handler");
+const validator = require("validator");
+const Product = require("../models/product");
 
-// Obtener todos los productos
-const getProducts = async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener productos', error });
+// Crear producto
+const createProduct = asyncHandler(async (req, res) => {
+  const { name, description, price } = req.body;
+
+  if (!name || !description || price === undefined) {
+    return res.status(400).json({ message: "Todos los campos son obligatorios" });
   }
-};
-
-// Crear un nuevo producto
-const createProduct = async (req, res) => {
-  try {
-    const { name, description, price, user } = req.body;
-    const product = await Product.create({ name, description, price, user });
-    res.status(201).json(product);
-  } catch (error) {
-    res.status(400).json({ message: 'Error al crear producto', error });
+  if (!validator.isLength(name, { min: 2, max: 120 })) {
+    return res.status(400).json({ message: "Nombre inválido" });
   }
-};
+  if (!validator.isLength(description, { min: 10, max: 1000 })) {
+    return res.status(400).json({ message: "Descripción inválida" });
+  }
+  if (!validator.isFloat(String(price), { min: 0 })) {
+    return res.status(400).json({ message: "Precio inválido" });
+  }
 
-// Obtener un producto por ID
-const getProductById = async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
+  const product = await Product.create({
+    name: validator.escape(name),
+    description: validator.escape(description),
+    price: Number(price),
+    user: req.user?.id, // protección si req.user no está definido
+  });
+
+  res.status(201).json(product);
+});
+
+// Listar productos
+const listProducts = asyncHandler(async (req, res) => {
+  const products = await Product.find().lean();
+  res.json(products);
+});
+
+// Obtener producto por ID
+const getProductById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (!validator.isMongoId(id)) {
+    return res.status(400).json({ message: "ID inválido" });
+  }
+
+  const product = await Product.findById(id).lean();
+  if (!product) {
+    return res.status(404).json({ message: "Producto no encontrado" });
+  }
+
+  res.json(product);
+});
+
+// Actualizar producto
+const updateProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { name, description, price } = req.body;
+
+  if (!validator.isMongoId(id)) {
+    return res.status(400).json({ message: "ID inválido" });
+  }
+
+  const product = await Product.findById(id);
+  if (!product) {
+    return res.status(404).json({ message: "Producto no encontrado" });
+  }
+
+  if (req.user && String(product.user) !== String(req.user.id) && req.user.role !== "admin") {
+    return res.status(403).json({ message: "No autorizado" });
+  }
+
+  if (name) {
+    if (!validator.isLength(name, { min: 2, max: 120 })) {
+      return res.status(400).json({ message: "Nombre inválido" });
     }
-    res.json(product);
-  } catch (error) {
-    res.status(500).json({ message: 'Error al obtener producto', error });
+    product.name = validator.escape(name);
   }
-};
-
-// Actualizar un producto por ID
-const updateProduct = async (req, res) => {
-  try {
-    const { name, description, price, user } = req.body;
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { name, description, price, user },
-      { new: true, runValidators: true }
-    );
-    if (!product) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
+  if (description) {
+    if (!validator.isLength(description, { min: 10, max: 1000 })) {
+      return res.status(400).json({ message: "Descripción inválida" });
     }
-    res.json(product);
-  } catch (error) {
-    res.status(400).json({ message: 'Error al actualizar producto', error });
+    product.description = validator.escape(description);
   }
-};
-
-// Eliminar un producto por ID
-const deleteProduct = async (req, res) => {
-  try {
-    const product = await Product.findByIdAndDelete(req.params.id);
-    if (!product) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
+  if (price !== undefined) {
+    if (!validator.isFloat(String(price), { min: 0 })) {
+      return res.status(400).json({ message: "Precio inválido" });
     }
-    res.json({ message: 'Producto eliminado correctamente' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error al eliminar producto', error });
+    product.price = Number(price);
   }
-};
+
+  const updated = await product.save();
+  res.json(updated);
+});
+
+// Eliminar producto
+const deleteProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  if (!validator.isMongoId(id)) {
+    return res.status(400).json({ message: "ID inválido" });
+  }
+
+  const product = await Product.findById(id);
+  if (!product) {
+    return res.status(404).json({ message: "Producto no encontrado" });
+  }
+
+  if (req.user && String(product.user) !== String(req.user.id) && req.user.role !== "admin") {
+    return res.status(403).json({ message: "No autorizado" });
+  }
+
+  await product.deleteOne();
+  res.status(204).send();
+});
 
 module.exports = {
-  getProducts,
   createProduct,
+  listProducts,
   getProductById,
   updateProduct,
   deleteProduct,
