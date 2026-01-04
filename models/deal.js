@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
-const offeringSchema = mongoose.Schema(
+const dealSchema = new mongoose.Schema(
   {
-    name: {
+    title: {
       type: String,
       required: true,
       trim: true,
@@ -16,7 +16,7 @@ const offeringSchema = mongoose.Schema(
       required: true,
       min: 0,
     },
-    owner: {
+    adminId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
@@ -27,6 +27,6 @@ const offeringSchema = mongoose.Schema(
   }
 );
 
-const Offering = mongoose.model("Offering", offeringSchema);
+const Deal = mongoose.model("Deal", dealSchema);
 
-module.exports = Offering;
+module.exports = Deal;

@@ -1,7 +1,6 @@
-// routes/productRoutes.js
 const express = require("express");
 const router = express.Router();
-const { protect } = require("../auth/authMiddleware");
+
 const {
   createProduct,
   listProducts,
@@ -10,19 +9,21 @@ const {
   deleteProduct,
 } = require("../controllers/productController");
 
-// Listar todos los productos
+const { protect, admin } = require("../auth/authMiddleware");
+
+// Crear producto
+router.post("/", protect, admin, createProduct);
+
+// Listar productos
 router.get("/", listProducts);
 
-// Crear un nuevo producto (requiere autenticación)
-router.post("/", protect, createProduct);
-
-// Obtener un producto por ID
+// Obtener producto por ID
 router.get("/:id", getProductById);
 
-// Actualizar un producto por ID (requiere autenticación)
-router.put("/:id", protect, updateProduct);
+// Actualizar producto
+router.put("/:id", protect, admin, updateProduct);
 
-// Eliminar un producto por ID (requiere autenticación)
-router.delete("/:id", protect, deleteProduct);
+// Eliminar producto
+router.delete("/:id", protect, admin, deleteProduct);
 
 module.exports = router;

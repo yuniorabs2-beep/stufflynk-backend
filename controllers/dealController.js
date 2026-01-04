@@ -1,114 +1,77 @@
-// controllers/dealController.js
-const asyncHandler = require("express-async-handler");
-const validator = require("validator");
-const Trade = require("../models/trade");
+const Deal = require("../models/deal"); // ✅ apunta al archivo correcto
 
-// Crear deal
-const createDeal = asyncHandler(async (req, res) => {
-  const { title, terms, price } = req.body;
+// Crear un nuevo deal
+const createDeal = async (req, res) => {
+  try {
+    const { title, description, price, adminId } = req.body;
 
-  if (!title || !terms || price === undefined) {
-    return res.status(400).json({ message: "Todos los campos son obligatorios" });
+    const newDeal = new Deal({ title, description, price, adminId });
+    const savedDeal = await newDeal.save();
+
+    res.status(201).json(savedDeal);
+  } catch (error) {
+    res.status(500).json({ message: "Error al crear el deal", error: error.message });
   }
-  if (!validator.isLength(title, { min: 3, max: 120 })) {
-    return res.status(400).json({ message: "Título inválido" });
+};
+
+// Obtener todos los deals
+const getDeals = async (req, res) => {
+  try {
+    const deals = await Deal.find().sort({ createdAt: -1 });
+    res.json(deals);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener los deals", error: error.message });
   }
-  if (!validator.isLength(terms, { min: 10, max: 2000 })) {
-    return res.status(400).json({ message: "Términos inválidos" });
-  }
-  if (!validator.isFloat(String(price), { min: 0 })) {
-    return res.status(400).json({ message: "Precio inválido" });
-  }
+};
 
-  const deal = await Trade.create({
-    title: validator.escape(title),
-    terms: validator.escape(terms),
-    price: Number(price),
-    user: req.user?.id, // protección si req.user no está definido
-    status: "draft",
-  });
-
-  res.status(201).json(deal);
-});
-
-// Listar deals
-const getDeals = asyncHandler(async (req, res) => {
-  const deals = await Trade.find({ user: req.user?.id }).lean();
-  res.json(deals);
-});
-
-// Obtener deal por ID
-const getDealById = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  if (!validator.isMongoId(id)) {
-    return res.status(400).json({ message: "ID inválido" });
-  }
-
-  const deal = await Trade.findOne({ _id: id, user: req.user?.id }).lean();
-  if (!deal) {
-    return res.status(404).json({ message: "Deal no encontrado" });
-  }
-
-  res.json(deal);
-});
-
-// Actualizar deal
-const updateDeal = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { title, terms, price, status } = req.body;
-
-  if (!validator.isMongoId(id)) {
-    return res.status(400).json({ message: "ID inválido" });
-  }
-
-  const deal = await Trade.findById(id);
-  if (!deal) {
-    return res.status(404).json({ message: "Deal no encontrado" });
-  }
-
-  if (req.user && String(deal.user) !== String(req.user.id) && req.user.role !== "admin") {
-    return res.status(403).json({ message: "No autorizado" });
-  }
-
-  if (title) deal.title = validator.escape(title);
-  if (terms) deal.terms = validator.escape(terms);
-  if (price !== undefined) {
-    if (!validator.isFloat(String(price), { min: 0 })) {
-      return res.status(400).json({ message: "Precio inválido" });
+// Obtener un deal por ID
+const getDealById = async (req, res) => {
+  try {
+    const deal = await Deal.findById(req.params.id);
+    if (!deal) {
+      return res.status(404).json({ message: "Deal no encontrado" });
     }
-    deal.price = Number(price);
+    res.json(deal);
+  } catch (error) {
+    res.status(500).json({ message: "Error al buscar el deal", error: error.message });
   }
-  if (status) {
-    const allowed = ["draft", "active", "closed", "cancelled"];
-    if (!allowed.includes(status)) {
-      return res.status(400).json({ message: "Estado inválido" });
+};
+
+// Actualizar un deal
+const updateDeal = async (req, res) => {
+  try {
+    const { title, description, price } = req.body;
+    const deal = await Deal.findById(req.params.id);
+
+    if (!deal) {
+      return res.status(404).json({ message: "Deal no encontrado" });
     }
-    deal.status = status;
+
+    deal.title = title ?? deal.title;
+    deal.description = description ?? deal.description;
+    deal.price = price ?? deal.price;
+
+    const updatedDeal = await deal.save();
+    res.json(updatedDeal);
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar el deal", error: error.message });
   }
+};
 
-  const updated = await deal.save();
-  res.json(updated);
-});
+// Eliminar un deal
+const deleteDeal = async (req, res) => {
+  try {
+    const deal = await Deal.findById(req.params.id);
+    if (!deal) {
+      return res.status(404).json({ message: "Deal no encontrado" });
+    }
 
-// Eliminar deal
-const deleteDeal = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  if (!validator.isMongoId(id)) {
-    return res.status(400).json({ message: "ID inválido" });
+    await deal.deleteOne();
+    res.json({ message: "Deal eliminado" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar el deal", error: error.message });
   }
-
-  const deal = await Trade.findById(id);
-  if (!deal) {
-    return res.status(404).json({ message: "Deal no encontrado" });
-  }
-
-  if (req.user && String(deal.user) !== String(req.user.id) && req.user.role !== "admin") {
-    return res.status(403).json({ message: "No autorizado" });
-  }
-
-  await deal.deleteOne();
-  res.status(204).send();
-});
+};
 
 module.exports = {
   createDeal,

@@ -1,20 +1,18 @@
-// routes/serviceRoutes.js
 const express = require("express");
 const router = express.Router();
 const {
   createService,
-  getServices,
+  listServices,
   getServiceById,
+  updateService,
+  deleteService,
 } = require("../controllers/serviceController");
-const { protect } = require("../auth/authMiddleware");
+const { protect, admin } = require("../auth/authMiddleware");
 
-// Listar todos los servicios (público)
-router.get("/", getServices);
-
-// Obtener un servicio por ID (público)
+router.post("/", protect, admin, createService);
+router.get("/", listServices);
 router.get("/:id", getServiceById);
-
-// Crear un nuevo servicio (requiere autenticación)
-router.post("/", protect, createService);
+router.put("/:id", protect, admin, updateService);
+router.delete("/:id", protect, admin, deleteService);
 
 module.exports = router;

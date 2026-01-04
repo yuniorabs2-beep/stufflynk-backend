@@ -1,6 +1,6 @@
-// routes/dealRoutes.js
 const express = require("express");
 const router = express.Router();
+
 const {
   createDeal,
   getDeals,
@@ -8,21 +8,22 @@ const {
   updateDeal,
   deleteDeal,
 } = require("../controllers/dealController");
-const { protect } = require("../auth/authMiddleware");
 
-// Listar todos los deals del usuario autenticado
-router.get("/", protect, getDeals);
+const { protect, admin } = require("../auth/authMiddleware");
 
-// Obtener un deal por ID (requiere autenticación)
-router.get("/:id", protect, getDealById);
+// Crear deal
+router.post("/", protect, admin, createDeal);
 
-// Crear un nuevo deal (requiere autenticación)
-router.post("/", protect, createDeal);
+// Listar deals
+router.get("/", getDeals);
 
-// Actualizar un deal por ID (requiere autenticación)
-router.put("/:id", protect, updateDeal);
+// Obtener deal por ID
+router.get("/:id", getDealById);
 
-// Eliminar un deal por ID (requiere autenticación)
-router.delete("/:id", protect, deleteDeal);
+// Actualizar deal
+router.put("/:id", protect, admin, updateDeal);
+
+// Eliminar deal
+router.delete("/:id", protect, admin, deleteDeal);
 
 module.exports = router;

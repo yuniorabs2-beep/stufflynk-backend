@@ -2,20 +2,22 @@ const mongoose = require('mongoose');
 
 const tradeSchema = new mongoose.Schema(
   {
-    itemOffered: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Offering',
-      required: true,
+    title: {
+      type: String,
+      required: [true, 'El título es obligatorio'],
     },
-    itemRequested: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
-      required: true,
+    terms: {
+      type: String,
+      required: [true, 'Los términos son obligatorios'],
+    },
+    price: {
+      type: Number,
+      required: [true, 'El precio es obligatorio'],
     },
     status: {
       type: String,
-      enum: ['pending', 'accepted', 'rejected'],
-      default: 'pending',
+      enum: ['draft', 'active', 'closed', 'cancelled'],
+      default: 'draft',
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,

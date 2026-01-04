@@ -1,58 +1,69 @@
-// controllers/serviceController.js
-const asyncHandler = require("express-async-handler");
-const validator = require("validator");
 const Offering = require("../models/offering");
 
 // Crear servicio
-const createService = asyncHandler(async (req, res) => {
-  const { title, description, price } = req.body;
-
-  if (!title || !description || price === undefined) {
-    return res.status(400).json({ message: "Todos los campos son requeridos" });
+const createService = async (req, res) => {
+  try {
+    const { name, description, price } = req.body;
+    const service = new Offering({ name, description, price, owner: req.user?._id });
+    const saved = await service.save();
+    res.status(201).json(saved);
+  } catch (error) {
+    res.status(500).json({ message: "Error al crear servicio", error: error.message });
   }
-  if (!validator.isLength(title, { min: 2, max: 120 })) {
-    return res.status(400).json({ message: "Título inválido" });
+};
+
+const listServices = async (req, res) => {
+  try {
+    const services = await Offering.find().sort({ createdAt: -1 });
+    res.json(services);
+  } catch (error) {
+    res.status(500).json({ message: "Error al listar servicios", error: error.message });
   }
-  if (!validator.isLength(description, { min: 10, max: 1000 })) {
-    return res.status(400).json({ message: "Descripción inválida" });
+};
+
+const getServiceById = async (req, res) => {
+  try {
+    const service = await Offering.findById(req.params.id);
+    if (!service) return res.status(404).json({ message: "Servicio no encontrado" });
+    res.json(service);
+  } catch (error) {
+    res.status(500).json({ message: "Error al obtener servicio", error: error.message });
   }
-  if (!validator.isFloat(String(price), { min: 0 })) {
-    return res.status(400).json({ message: "Precio inválido" });
+};
+
+const updateService = async (req, res) => {
+  try {
+    const { name, description, price } = req.body;
+    const service = await Offering.findById(req.params.id);
+    if (!service) return res.status(404).json({ message: "Servicio no encontrado" });
+
+    service.name = name ?? service.name;
+    service.description = description ?? service.description;
+    service.price = price ?? service.price;
+
+    const updated = await service.save();
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ message: "Error al actualizar servicio", error: error.message });
   }
+};
 
-  const service = await Offering.create({
-    title: validator.escape(title),
-    description: validator.escape(description),
-    price: Number(price),
-    user: req.user?.id, // protección si req.user no está definido
-  });
+const deleteService = async (req, res) => {
+  try {
+    const service = await Offering.findById(req.params.id);
+    if (!service) return res.status(404).json({ message: "Servicio no encontrado" });
 
-  res.status(201).json(service);
-});
-
-// Listar servicios
-const getServices = asyncHandler(async (req, res) => {
-  const services = await Offering.find().populate("user", "name email").lean();
-  res.json(services);
-});
-
-// Obtener servicio por ID
-const getServiceById = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  if (!validator.isMongoId(id)) {
-    return res.status(400).json({ message: "ID inválido" });
+    await service.deleteOne();
+    res.json({ message: "Servicio eliminado" });
+  } catch (error) {
+    res.status(500).json({ message: "Error al eliminar servicio", error: error.message });
   }
-
-  const service = await Offering.findById(id).populate("user", "name email").lean();
-  if (!service) {
-    return res.status(404).json({ message: "Servicio no encontrado" });
-  }
-
-  res.json(service);
-});
+};
 
 module.exports = {
   createService,
-  getServices,
+  listServices,
   getServiceById,
+  updateService,
+  deleteService,
 };
