@@ -28,12 +28,13 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
+// ✅ CORRECCIÓN: Ahora verifica el campo 'role' en lugar de 'isAdmin'
 const admin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
+  if (req.user && req.user.role === 'admin') {
     next();
   } else {
     res.status(403);
-    return res.json({ message: 'No autorizado, permisos insuficientes' });
+    return res.json({ message: 'No autorizado, se requiere rol de administrador' });
   }
 };
 

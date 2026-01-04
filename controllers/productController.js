@@ -1,17 +1,27 @@
-// controllers/productController.js
-const Product = require("../models/Product"); // ✅ respeta el nombre con mayúscula
+const Product = require("../models/Product");
 
 // Crear producto
 const createProduct = async (req, res) => {
   try {
     const { name, description, price, category } = req.body;
 
-    const product = new Product({ name, description, price, category, owner: req.user?._id });
-    const saved = await product.save();
+    // Verificamos protección de ruta
+    if (!req.user) {
+      return res.status(401).json({ message: "No autorizado, falta el usuario" });
+    }
 
+    const product = new Product({ 
+      name, 
+      description, 
+      price, 
+      category, 
+      user: req.user._id // Asegurado con tu modelo
+    });
+
+    const saved = await product.save();
     res.status(201).json(saved);
   } catch (error) {
-    res.status(500).json({ message: "Error al crear el producto", error: error.message });
+    res.status(400).json({ message: "Error al crear el producto", error: error.message });
   }
 };
 

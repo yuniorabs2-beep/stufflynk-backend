@@ -16,10 +16,11 @@ const userSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    isAdmin: {
-      type: Boolean,
+    // ✅ Cambiado de isAdmin a role para que coincida con tu controlador
+    role: {
+      type: String,
       required: true,
-      default: false,
+      default: 'user', // Puede ser 'user' o 'admin'
     },
   },
   {
@@ -35,7 +36,7 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 // Middleware para encriptar contraseña antes de guardar
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
-    next();
+    return next(); // Añadido return para evitar ejecuciones extra
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
