@@ -1,0 +1,378 @@
+{
+	"info": {
+		"_postman_id": "865be277-28b6-44aa-a535-280930c643d3",
+		"name": "stufflynk backend test",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "50531056",
+		"_collection_link": "https://yuniorabs1-978972.postman.co/workspace/Yunior-Baez-suero's-Workspace~56fcb873-775e-4bde-8b28-f26352f41c44/collection/50531056-865be277-28b6-44aa-a535-280930c643d3?action=share&source=collection_link&creator=50531056"
+	},
+	"item": [
+		{
+			"name": "El origen de los datos",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Admin Stufflynk\",\r\n  \"email\": \"admin@test.com\",\r\n  \"password\": \"123\",\r\n  \"role\": \"admin\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login de Administrador",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"email\": \"admin@test.com\",\r\n  \"password\": \"123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Lista de Usuarios",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NWFjM2E3MmY2NTRiZjZhNmVhNTI4ZSIsImlhdCI6MTc2NzU1NjAwOCwiZXhwIjoxNzcwMTQ4MDA4fQ.ESbwsei2YV6AO03CmCInXI27A-84a7dfJSuswFMtMf4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear Producto",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NWFjM2E3MmY2NTRiZjZhNmVhNTI4ZSIsImlhdCI6MTc2NzU1NjAwOCwiZXhwIjoxNzcwMTQ4MDA4fQ.ESbwsei2YV6AO03CmCInXI27A-84a7dfJSuswFMtMf4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Teclado Mecánico RGB\",\r\n  \"description\": \"Switches Blue, retroiluminado, layout español\",\r\n  \"price\": 75.50,\r\n  \"category\": \"Periféricos\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Listar Catálogo de Productos",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/products/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Detalle de Producto",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/products/695ace287cdf864611efaec0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						"695ace287cdf864611efaec0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar Precio de Producto",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NWFjM2E3MmY2NTRiZjZhNmVhNTI4ZSIsImlhdCI6MTc2NzU1Njc0OSwiZXhwIjoxNzcwMTQ4NzQ5fQ.45_8K4ia-lhN_zPGhhHjXnsk-VCen-TWhR_WoJjnFxQ",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Teclado Mecánico RGB Pro\",\r\n  \"price\": 65.99\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products/695ace287cdf864611efaec0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						"695ace287cdf864611efaec0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar Producto por ID",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NWFjM2E3MmY2NTRiZjZhNmVhNTI4ZSIsImlhdCI6MTc2NzU1NjAwOCwiZXhwIjoxNzcwMTQ4MDA4fQ.ESbwsei2YV6AO03CmCInXI27A-84a7dfJSuswFMtMf4",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:5000/api/products/695ace287cdf864611efaec0",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products",
+						"695ace287cdf864611efaec0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validar que el servidor responda JSON ante URLs inválidas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/mantenimiento-sistema",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"mantenimiento-sistema"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validar que el servidor responda JSON ante URLs inválidas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/mantenimiento-sistema",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"mantenimiento-sistema"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validar que el servidor responda JSON ante URLs inválidas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/v1/mantenimiento-sistema",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"v1",
+						"mantenimiento-sistema"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validación de Datos (Joi)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY5NWFjM2E3MmY2NTRiZjZhNmVhNTI4ZSIsImlhdCI6MTc2NzU1NjAwOCwiZXhwIjoxNzcwMTQ4MDA4fQ.ESbwsei2YV6AO03CmCInXI27A-84a7dfJSuswFMtMf4",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Teclado Pro\",\r\n  \"description\": \"Prueba profesional\",\r\n  \"price\": -100,\r\n  \"category\": \"Gaming\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validación de Robustez de Usuario",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Usuario Test\",\r\n  \"email\": \"esto_no_es_un_email\",\r\n  \"password\": \"123\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/users/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"users",
+						"register"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
