@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-// 🛡️ ESQUEMA DE PRODUCTOS (Ya validado)
+// 🛡️ ESQUEMA DE PRODUCTOS
 const productSchema = Joi.object({
   name: Joi.string().trim().min(3).max(50).required().messages({
     'string.min': 'El nombre debe tener al menos 3 caracteres',
@@ -13,7 +13,7 @@ const productSchema = Joi.object({
   category: Joi.string().required()
 });
 
-// 🛡️ ESQUEMA DE USUARIOS (Blindaje de identidad)
+// 🛡️ ESQUEMA DE USUARIOS
 const userSchema = Joi.object({
   name: Joi.string().trim().min(2).required().messages({
     'string.min': 'El nombre es demasiado corto'

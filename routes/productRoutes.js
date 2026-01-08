@@ -1,29 +1,35 @@
 const express = require("express");
 const router = express.Router();
 
-const {
-  createProduct,
-  listProducts,
-  getProductById,
-  updateProduct,
-  deleteProduct,
+// Importación de controladores
+const { 
+    listProducts, 
+    createProduct, 
+    getProductById, 
+    updateProduct, 
+    deleteProduct 
 } = require("../controllers/productController");
 
+// Middlewares de autenticación
 const { protect, admin } = require("../auth/authMiddleware");
 
-// Crear producto
-router.post("/", protect, admin, createProduct);
+// Importación corregida para eliminar el error de "casing" (v minúscula)
+const { validateProduct } = require("../middleware/validationMiddleware");
 
-// Listar productos
-router.get("/", listProducts);
+/**
+ * @swagger
+ * tags:
+ * name: Productos
+ * description: Gestión de inventario de Stufflynk
+ */
 
-// Obtener producto por ID
-router.get("/:id", getProductById);
+router.route("/")
+    .get(listProducts)
+    .post(protect, validateProduct, createProduct);
 
-// Actualizar producto
-router.put("/:id", protect, admin, updateProduct);
-
-// Eliminar producto
-router.delete("/:id", protect, admin, deleteProduct);
+router.route("/:id")
+    .get(getProductById)
+    .put(protect, updateProduct)
+    .delete(protect, admin, deleteProduct);
 
 module.exports = router;

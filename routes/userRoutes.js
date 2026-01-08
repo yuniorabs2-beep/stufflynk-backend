@@ -8,7 +8,7 @@ const {
 } = require("../controllers/userController");
 
 const { protect, admin } = require("../auth/authMiddleware");
-const { validateUser } = require("../middleware/validatorMiddleware");
+const { validateUser } = require("../middleware/validationMiddleware");
 
 /**
  * @swagger
@@ -39,8 +39,6 @@ const { validateUser } = require("../middleware/validatorMiddleware");
  * responses:
  * 201:
  * description: Usuario registrado exitosamente
- * 400:
- * description: Error de validación o usuario ya existe
  */
 router.post("/register", validateUser, registerUser);
 
@@ -49,7 +47,6 @@ router.post("/register", validateUser, registerUser);
  * /api/users/login:
  * post:
  * summary: Iniciar sesión
- * description: Retorna un Token JWT para usar en rutas protegidas
  * tags: [Usuarios]
  * requestBody:
  * required: true
@@ -64,9 +61,7 @@ router.post("/register", validateUser, registerUser);
  * type: string
  * responses:
  * 200:
- * description: Login exitoso, retorna el Token
- * 401:
- * description: Credenciales inválidas
+ * description: Login exitoso
  */
 router.post("/login", loginUser);
 
@@ -81,10 +76,6 @@ router.post("/login", loginUser);
  * responses:
  * 200:
  * description: Lista de usuarios
- * 401:
- * description: No autorizado (falta token)
- * 403:
- * description: Prohibido (no es administrador)
  */
 router.get("/", protect, admin, getUsers);
 

@@ -1,23 +1,19 @@
-const Product = require("../models/Product");
+const Product = require("../models/product"); // Corregido a minúscula según tu carpeta models
 
 // Crear producto
 const createProduct = async (req, res) => {
   try {
     const { name, description, price, category } = req.body;
-
-    // Verificamos protección de ruta
     if (!req.user) {
       return res.status(401).json({ message: "No autorizado, falta el usuario" });
     }
-
     const product = new Product({ 
       name, 
       description, 
       price, 
       category, 
-      user: req.user._id // Asegurado con tu modelo
+      user: req.user._id 
     });
-
     const saved = await product.save();
     res.status(201).json(saved);
   } catch (error) {
