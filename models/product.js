@@ -20,6 +20,11 @@ const productSchema = new mongoose.Schema(
       required: [true, 'Precio obligatorio'],
       min: 0,
     },
+    // ✅ Añadimos category para que coincida con tu controlador
+    category: {
+      type: String,
+      required: [true, 'Categoría obligatoria'],
+    },
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
