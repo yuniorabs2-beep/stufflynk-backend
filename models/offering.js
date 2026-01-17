@@ -4,16 +4,16 @@ const offeringSchema = mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
+      required: [true, "El nombre del servicio es obligatorio"],
       trim: true,
     },
     description: {
       type: String,
-      required: true,
+      required: [true, "La descripción es obligatoria"],
     },
     price: {
       type: Number,
-      required: true,
+      required: [true, "El precio es obligatorio"],
       min: 0,
     },
     owner: {
@@ -27,6 +27,4 @@ const offeringSchema = mongoose.Schema(
   }
 );
 
-const Offering = mongoose.model("Offering", offeringSchema);
-
-module.exports = Offering;
+module.exports = mongoose.model("Offering", offeringSchema);
