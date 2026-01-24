@@ -29,16 +29,28 @@ const { validateUser } = require("../middleware/validationMiddleware");
  * application/json:
  * schema:
  * type: object
+ * required:
+ * - name
+ * - email
+ * - password
  * properties:
  * name:
  * type: string
+ * example: Juan Perez
  * email:
  * type: string
+ * example: juan@example.com
  * password:
  * type: string
+ * example: 123456
+ * role:
+ * type: string
+ * example: user
  * responses:
  * 201:
  * description: Usuario registrado exitosamente
+ * 400:
+ * description: Error en los datos enviados
  */
 router.post("/register", validateUser, registerUser);
 
@@ -46,7 +58,7 @@ router.post("/register", validateUser, registerUser);
  * @swagger
  * /api/users/login:
  * post:
- * summary: Iniciar sesión
+ * summary: Iniciar sesión / Obtener Token
  * tags: [Usuarios]
  * requestBody:
  * required: true
@@ -54,14 +66,21 @@ router.post("/register", validateUser, registerUser);
  * application/json:
  * schema:
  * type: object
+ * required:
+ * - email
+ * - password
  * properties:
  * email:
  * type: string
+ * example: juan@example.com
  * password:
  * type: string
+ * example: 123456
  * responses:
  * 200:
  * description: Login exitoso
+ * 401:
+ * description: Credenciales incorrectas
  */
 router.post("/login", loginUser);
 
@@ -75,7 +94,7 @@ router.post("/login", loginUser);
  * - bearerAuth: []
  * responses:
  * 200:
- * description: Lista de usuarios
+ * description: Lista de usuarios obtenida
  */
 router.get("/", protect, admin, getUsers);
 
